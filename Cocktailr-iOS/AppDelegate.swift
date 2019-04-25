@@ -16,16 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-//        CocktailApi.instance.getAllIngredients { (ingredients) in
-//            if let ingredients = ingredients {
-//                print(ingredients)
-//            }
-//        }
-//        CocktailApi.instance.getCocktailsByIngredient(ingredient: "gin") { (cocktails)  in
-//            if let cocktails = cocktails {
-//                print(cocktails)
-//            }
-//        }
+        CocktailRepository.instance.getCocktailsByIngredient(ingredient: "Tequila")
         return true
     }
 

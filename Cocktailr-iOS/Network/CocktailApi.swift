@@ -11,11 +11,11 @@ class CocktailApi {
         let ingredientsUrl = components.url!
         
         let task = URLSession.shared.dataTask(with: ingredientsUrl) { (data, response, error) in
-            if let data = data,
-                let string = String(data: data, encoding: .utf8) {
-                print(string)
+            let jsonDecoder = JSONDecoder()
+            var ingredients: [String] = []
+            if let data = data, let getAllIngredientsResponse = try? jsonDecoder.decode(GetAllIngredientsResponse.self, from: data) {
+                ingredients = getAllIngredientsResponse.drinks.map({ $0.strIngredient1 })
             }
-            let ingredients: [String] = []
             completion(ingredients)
         }
         task.resume()
@@ -28,11 +28,14 @@ class CocktailApi {
         let cocktailUrl = components.url!
         
         let task = URLSession.shared.dataTask(with: cocktailUrl) { (data, response, error) in
-            if let data = data,
-                let string = String(data: data, encoding: .utf8) {
-                print(string)
+            let jsonDecoder = JSONDecoder()
+            if let data = data, let cocktailByIdResponse = try? jsonDecoder.decode(CocktailByIdResponse.self, from: data) {
+                let responseCocktail = cocktailByIdResponse.drinks[0]
+                cocktail.category = responseCocktail.strCategory
+                cocktail.instructions = responseCocktail.strInstructions
+                cocktail.ingredients = self.getIngredients(cocktail: responseCocktail)
+                cocktail.measurements = self.getMeasurements(cocktail: responseCocktail)
             }
-            let cocktail: Cocktail = Cocktail(id: "", name: "", category: "", instructions: "", imageUrl: "", ingredients: [], measurements: [])
             completion(cocktail)
         }
         task.resume()
@@ -45,13 +48,21 @@ class CocktailApi {
         let cocktailsUrl = components.url!
         
         let task = URLSession.shared.dataTask(with: cocktailsUrl) { (data, response, error) in
-            if let data = data,
-                let string = String(data: data, encoding: .utf8) {
-                print(string)
+            let jsonDecoder = JSONDecoder()
+            var cocktails: [Cocktail] = []
+            if let data = data, let cocktailsByIngredientResponse = try? jsonDecoder.decode(CocktailsByIngredientResponse.self, from: data) {
+                cocktails = cocktailsByIngredientResponse.drinks.map({ Cocktail(id: $0.idDrink, name: $0.strDrink, imageUrl: $0.strDrinkThumb) })
             }
-            let cocktails: [Cocktail] = []
             completion(cocktails)
         }
         task.resume()
+    }
+    
+    private func getIngredients(cocktail: CocktailByIdResponseDrink) -> [String?] {
+        return [cocktail.strIngredient1, cocktail.strIngredient2, cocktail.strIngredient3, cocktail.strIngredient4, cocktail.strIngredient5, cocktail.strIngredient6, cocktail.strIngredient7, cocktail.strIngredient8, cocktail.strIngredient9, cocktail.strIngredient10, cocktail.strIngredient11, cocktail.strIngredient12, cocktail.strIngredient13, cocktail.strIngredient14, cocktail.strIngredient15].filter({ $0 != nil && $0 != "" && $0 != " " && $0 != "\n" })
+    }
+
+    private func getMeasurements(cocktail: CocktailByIdResponseDrink) -> [String?] {
+        return [cocktail.strMeasure1, cocktail.strMeasure2, cocktail.strMeasure3, cocktail.strMeasure4, cocktail.strMeasure5, cocktail.strMeasure6, cocktail.strMeasure7, cocktail.strMeasure8, cocktail.strMeasure9, cocktail.strMeasure10, cocktail.strMeasure11, cocktail.strMeasure12, cocktail.strMeasure13, cocktail.strMeasure14, cocktail.strMeasure15].filter({ $0 != nil && $0 != "" && $0 != " " && $0 != "\n" })
     }
 }
